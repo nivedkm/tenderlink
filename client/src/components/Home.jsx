@@ -1,61 +1,50 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
+import backgroundImage from "../assets/home.jpeg"; // Import the image file
+import { TransactionContext } from "../context/TransactionContext";
 
-function Home({}) {
-  const [flag, setFlag] = useState(false);
-  const handleGetDetails = () => {
-    setFlag(true);
-  };
+function Home() {
+  const { connectWallet, currentAccount } = useContext(TransactionContext);
+
   return (
-    //Displaying tenders
-    <div>
-      <div className="flex flex-wrap justify-center">
-        <div className="max-w-sm mx-2 mb-4">
-          <div className="bg-blue-500 text-white rounded-lg shadow-lg">
-            <div className="px-6 py-4">
-              <span className="block text-xl font-semibold">
-                Tender: $index + 1
-              </span>
-              <p className="mt-2">
-                <strong>Address:</strong> tender
-              </p>
-            </div>
-            <div className="px-6 py-4">
-              <button
-                className="btn btn-blue"
-                onClick={() => handleGetDetails()}
-              >
-                Get Details
-              </button>
-            </div>
-          </div>
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-100 "
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="backdrop-blur-sm w bg-white/30 rounded-md ">
+        <div className="text-center mt-5">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Welcome to TenderLink
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Your gateway to seamless tendering processes
+          </p>
+        </div>
+        <div className="max-w-md px-4 py-6 bg-white shadow-lg rounded-lg">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Get Started Today
+          </h2>
+          <p className="text-gray-600 mb-4">
+            TenderLink offers a comprehensive platform to streamline your tender
+            processes. From creating tenders to evaluating proposals, we've got
+            you covered.
+          </p>
+          {currentAccount ? (
+            <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">
+              Connected{" "}
+            </button>
+          ) : (
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+              onClick={connectWallet}
+            >
+              Connect{" "}
+            </button>
+          )}
         </div>
       </div>
-      {/*Giving details of the selected tender for bidding*/}
-      {flag && (
-        <div
-          id="modal1"
-          className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex justify-center items-center"
-        >
-          <div className="bg-white rounded-lg p-8 max-w-md w-80">
-            <h4>details[1]</h4>
-            <hr />
-            <h5>Industry :</h5>
-            <p>details[2]</p>
-            <h5>Description :</h5>
-            <p>details[3]</p>
-            <h5>Bid Start Date :</h5>
-            <p>details[4]</p>
-            <h5>Bid End Date :</h5>
-            <p>details[5]</p>
-            <h5>Tender Complete :</h5>
-            <p>details[6]</p>
-            <div className="flex justify-between pt-4">
-              <button className="btn btn-blue w-20 bg-accent">Bid</button>
-              <button className="btn btn-blue w-20 bg-warning" onClick={()=> setFlag(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

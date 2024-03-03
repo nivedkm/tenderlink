@@ -1,8 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import TenderCard from "./components/TenderCard";
 import CreateTender from "./components/CreateTender";
+import TenderList from "./components/TenderList";
+import TenderBid from "./components/TenderBid";
 import Home from "./components/Home";
+import Result from "./components/Result";
 
 const App = () => {
   return (
@@ -11,12 +13,16 @@ const App = () => {
         <NavBar />
       </div>
 
-      <div className="flex flex-row h-full m-2 overflow-hidden">
-        <div className="w-max">{/* <Sidebar /> */}</div>
+      <div className="flex flex-row h-full ">
         <div className="w-full h-full">
-          {/* <TenderCard/> */}
-          {/*<Home/> */}
-          <CreateTender/> 
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/admin" element={<CreateTender />} />
+            <Route path="/bid/:id" element={<TenderBid />} />
+            <Route path="/tenders" element={<TenderList />} />
+            <Route path="/result" element={<Result />} />
+          </Routes>
+          {/* <CreateTender /> */}
         </div>
       </div>
 

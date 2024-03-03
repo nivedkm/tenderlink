@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import openDender from "../../../abis/openDender.json";
-import selectiveDender from "../../../abis/selectiveDender.json";
-
+import { contractABI, contractAdress } from "../utils/constants";
 export const TransactionContext = React.createContext();
 
 if (typeof window.ethereum == "undefined") {
@@ -12,15 +10,12 @@ if (typeof window.ethereum == "undefined") {
 const { ethereum } = window;
 
 window.ethereum;
-
+// To fetch the contract
 const getOpenContract = () => {
   const provider = new ethers.providers.Web3Provider(ethereum);
   const signer = provider.getSigner();
-  const openContract = new ethers.Contract(
-    openDender.networks[5777].address,
-    openDender.abi,
-    signer
-  );
+  // Create an instance of the contract
+  const openContract = new ethers.Contract(contractAdress, contractABI, signer);
 
   return openContract;
 };
@@ -31,6 +26,7 @@ export const TransactionProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
+  const [industry, setIndustry] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [bidAmt, setBidAmt] = useState();
@@ -39,54 +35,46 @@ export const TransactionProvider = ({ children }) => {
 
   const [openTdrs, setOpenTdrs] = useState([]);
   const [OpenBids, setOpenBids] = useState([]);
+  const [resltTdrs, setResltTdrs] = useState([]);
   const tdrsArray = [];
   const bidsArray = [];
-
+  const resltArray = [];
   const handleChangeTitle = (e) => {
     setTitle(e.target.value);
-    console.log(title);
   };
-
+  const handleChangeIndustry = (e) => {
+    setIndustry(e.target.value);
+  };
   const handleChangeDesc = (e) => {
     setDesc(e.target.value);
-    console.log(desc);
   };
-
   const handleChangeStartTime = (e) => {
     setStartTime(e.target.value);
-    console.log(startTime);
   };
-
   const handleChangeEndTime = (e) => {
     setEndTime(e.target.value);
-    console.log(endTime);
   };
-
-  const selectOpenTender = () => {
-    setTenderType(0);
-    console.log("OpenTender selected");
-  };
-
   const handleChangeBidAmt = (e) => {
     setBidAmt(e.target.value);
-    console.log(bidAmt);
   };
-
   const handleChangeBidderName = (e) => {
     setBidderName(e.target.value);
-    console.log(bidderName);
   };
 
   const createTender = async () => {
     try {
-      console.log(title, desc, startTime, endTime);
-      if (!ethereum) return alert("Please install Metamask");
+      console.log(title, industry, desc, startTime, endTime);
+      const sTime = Math.floor(new Date(startTime).getTime() / 1000);
+      const eTime = Math.floor(new Date(endTime).getTime() / 1000);
 
+      if (!ethereum) return alert("Please install Metamask");
+      // Creates new tender using the createTender function of the contract
       const transact = await openTender.createTender(
         title,
-        startTime,
-        endTime,
-        desc
+        industry,
+        desc,
+        sTime,
+        eTime
       );
       console.log("openTender Result: ", transact);
     } catch (error) {
@@ -104,25 +92,43 @@ export const TransactionProvider = ({ children }) => {
         const id = tdrInfo.id.toString();
         const title = tdrInfo.title;
         const desc = tdrInfo.desc;
-
-        const startTime = tdrInfo.startTime.toString();
-        const endTime = parseInt(tdrInfo.endTime.toString());
+        const industry = tdrInfo.industry;
+        const startTime = tdrInfo.startTime;
+        const endTime = tdrInfo.endTime;
         const maxBid = tdrInfo.maxBid.toString();
-        const currentTime = parseInt(tdrInfo.currentTime.toString());
+        const currentTime = tdrInfo.currentTime;
         const ended = currentTime > endTime;
-
+        // Array created to store the details of each tender
         tdrsArray[i] = {
           tdrId: { id },
           tdrTitle: { title },
           tdrDesc: { desc },
+          tdrIndustry: { industry },
           tdrStartTime: { startTime },
           tdrEndTime: { endTime },
           tdrMaxBid: { maxBid },
           isEnded: { ended },
         };
+        if (ended) {
+          const winnerInfo = await openTender.getWinningBid(i);
+          const winnerName = winnerInfo.winnerName;
+          const winnerAdress = winnerInfo.winnerAdress;
+          const winningBidAmt = winnerInfo.winningBidAmt;
+          resltArray[i] = {
+            rtdrId: { id },
+            rtdrTitle: { title },
+            rtdrWname: { winnerName },
+            rtdrWnadress: { winnerAdress },
+            rtdrWnamt: { winningBidAmt },
+          };
+        }
       }
-
+      // Updates available tenders list
       setOpenTdrs(tdrsArray);
+      setResltTdrs(resltArray);
+    } else {
+      console.log("no tenders");
+      console.log(tdrsArray);
     }
   };
 
@@ -140,12 +146,15 @@ export const TransactionProvider = ({ children }) => {
   };
 
   const getPrevOpenBids = async () => {
+    // Gets the bid details of the respective tender
     try {
       if (tdrID) {
         const count = await openTender.getBidderCountofTdr(tdrID);
+        console.log("bcount", count);
         for (var i = 0; i < count; i++) {
           const bid = await openTender.getBiddersOfTdr(tdrID, i);
-          const bidder = bid.bidder.toString();
+          console.log("bid", bid);
+          const bidder = bid.biddera.toString();
           const bidderAmt = bid.bidAmt.toString();
           bidsArray[i] = {
             bidderAdr: { bidder },
@@ -159,12 +168,14 @@ export const TransactionProvider = ({ children }) => {
     }
 
     setOpenBids(bidsArray);
+    console.log(bidsArray);
   };
 
   const checkIfWalletIsConnected = async () => {
     try {
       if (!ethereum) return alert("Please install Metamask");
       const accounts = await ethereum.request({ method: "eth_accounts" });
+      // Gets the accounts of the connected wallet
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
       } else {
@@ -204,26 +215,21 @@ export const TransactionProvider = ({ children }) => {
         connectWallet,
         currentAccount,
         handleChangeTitle,
+        handleChangeIndustry,
         handleChangeDesc,
         handleChangeStartTime,
         handleChangeEndTime,
-        selectOpenTender,
-        selectSelectiveTender,
         createTender,
         loadOpenTdrs,
-        loadSelectiveTdrs,
         handleChangeBidAmt,
         handleChangeBidderName,
         placeOpenBid,
         openTdrs,
-        selectiveTdrs,
+        resltTdrs,
         setTdrID,
         tdrID,
         getPrevOpenBids,
         OpenBids,
-        placeSelectiveBid,
-        SelectiveBids,
-        getPrevSelectiveBids,
       }}
     >
       {children}

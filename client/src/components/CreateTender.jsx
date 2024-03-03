@@ -1,42 +1,52 @@
-import React from "react";
-
-function LabelInput({ htmlFor, label, type }) {
-  return (
-    <div className="relative">
-      <label
-        htmlFor={htmlFor}
-        className="block text-sm font-medium text-gray-700"
-      >
-        {label}
-      </label>
-      <input
-        id={htmlFor}
-        type={type}
-        className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2"
-      />
-    </div>
-  );
-}
+import React, { useContext } from "react";
+import { TransactionContext } from "../context/TransactionContext";
 
 function CreateTender() {
+  const {
+    handleChangeTitle,
+    handleChangeDesc,
+    handleChangeStartTime,
+    handleChangeEndTime,
+    handleChangeIndustry,
+    createTender,
+  } = useContext(TransactionContext);
+
   return (
     <div>
-      <div className="createTender">
+      <div className="createTender ">
         <div className="text-center pt-10">
           <h4 className="text-2xl font-bold">CREATE TENDER</h4>
         </div>
-        <div className="container mx-auto pt-10">
-          <form>
+        <div className="container  shadow-md mx-auto p-10">
+       
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <LabelInput
+              <div className="relative">
+                <label
                   htmlFor="tenderTitle"
-                  label="Tender Title"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Tender Title
+                </label>
+                <input
+                  id="tenderTitle"
                   type="text"
+                  className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2"
+                  onChange={handleChangeTitle}
                 />
               </div>
-              <div>
-                <LabelInput htmlFor="industry" label="Industry" type="text" />
+              <div className="relative">
+                <label
+                  htmlFor="industry"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Industry
+                </label>
+                <input
+                  id="industry"
+                  type="text"
+                  className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2"
+                  onChange={handleChangeIndustry}
+                />
               </div>
             </div>
             <div className="mt-4">
@@ -51,36 +61,46 @@ function CreateTender() {
                   id="description"
                   className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2 resize-none"
                   name="description"
+                  onChange={handleChangeDesc}
                 ></textarea>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <LabelInput
+              <div className="relative">
+                <label
                   htmlFor="bidO"
-                  label="Bid Open Date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Bid Open Date
+                </label>
+                <input
+                  id="bidO"
                   type="datetime-local"
+                  className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2"
+                  onChange={handleChangeStartTime}
                 />
               </div>
-              <div>
-                <LabelInput
+              <div className="relative">
+                <label
                   htmlFor="bidC"
-                  label="Bid Close Date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Bid Close Date
+                </label>
+                <input
+                  id="bidC"
                   type="datetime-local"
+                  className="w-full bg-base-200 border-neutral focus:border-primary px-4 py-2"
+                  onChange={handleChangeEndTime}
                 />
               </div>
             </div>
-
             <div className="pt-8">
-              <button
-                type="submit"
-                className="btn bg-primary"
-                onSubmit={() => handleSubmit()}
-              >
-                Submit
+              <button className="btn hover:bg-success" onClick={createTender}>
+                Create Tender
               </button>
             </div>
-          </form>
+         
         </div>
       </div>
     </div>
