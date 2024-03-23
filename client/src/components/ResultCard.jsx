@@ -2,7 +2,7 @@ import React from "react";
 
 const ResultCard = (props) => {
   return (
-    <tr className="text-center">
+    <tr className="text-center h-10 border-t-4 border-base-100 bg-base-200 m-4 rounded-xl ">
       <td>{props.tno}</td>
       <td>{props.tname}</td>
       <td>{props.amount > 0 ? props.winner : "NIL"}</td>

@@ -174,7 +174,7 @@ contract openTender {
                 block.timestamp
             );
     }
-
+    // returns the winning bid details when the bid has ended
     function getWinningBid(
         uint _tdrID
     ) public view returns (address winnerAddress, string memory winnerName, uint winningBidAmt) {

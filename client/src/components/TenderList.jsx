@@ -21,9 +21,9 @@ const TenderList = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full p-2  bg-opacity-80 overflow-y-scroll scrollbar scrollbar-thumb-primary scrollbar-thin scrollbar-track-base-100">
-      <div className="sticky top-0">
-        <h1 className="font-bold text-4xl text-center mt-8">Tenders List</h1>
+    <div className="flex flex-col h-full p-5  bg-opacity-80 overflow-y-scroll scrollbar scrollbar-thumb-primary scrollbar-thin scrollbar-track-base-100">
+      <div className="w-full text-center pt-10 pb-10">
+        <h1 className="font-bold text-4xl">Tenders</h1>
       </div>
 
       {isLoading ? (

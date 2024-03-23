@@ -1,26 +1,31 @@
+// Used to get smart contract funtionalities in the application or
+// Connects blockchain to the application
 import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { ethers } from "ethers"; // To interact with ethereum blockchain
 import { contractABI, contractAdress } from "../utils/constants";
-export const TransactionContext = React.createContext();
+// Provides a way to pass data through the component tree without having to pass props down manually at every level
+export const TransactionContext = React.createContext(); 
 
+// Checking if metamask is installed
 if (typeof window.ethereum == "undefined") {
   alert("Install Metamask!");
 }
-
+// Extracts ethereum object from the browser's window object
 const { ethereum } = window;
-
 window.ethereum;
+
 // To fetch the contract
 const getOpenContract = () => {
   const provider = new ethers.providers.Web3Provider(ethereum);
+  // Signer is an object that can sign transactions
   const signer = provider.getSigner();
-  // Create an instance of the contract
+  // Create an instance of the contract using the adress and abi
   const openContract = new ethers.Contract(contractAdress, contractABI, signer);
-
   return openContract;
 };
 
 export const TransactionProvider = ({ children }) => {
+  // Sets the contract instance to openTender
   const openTender = getOpenContract();
 
   const [currentAccount, setCurrentAccount] = useState("");
@@ -39,6 +44,7 @@ export const TransactionProvider = ({ children }) => {
   const tdrsArray = [];
   const bidsArray = [];
   const resltArray = [];
+  // Sets the value when typing the input
   const handleChangeTitle = (e) => {
     setTitle(e.target.value);
   };
@@ -83,7 +89,7 @@ export const TransactionProvider = ({ children }) => {
       throw new Error("No Ethereum object");
     }
   };
-
+  // Loads the tenders for displaying them
   const loadOpenTdrs = async () => {
     const tdrCount = await openTender.getTdrCount();
     if (tdrCount > 0) {
@@ -109,21 +115,22 @@ export const TransactionProvider = ({ children }) => {
           tdrMaxBid: { maxBid },
           isEnded: { ended },
         };
+        // Sets the finished tenders to another array
         if (ended) {
           const winnerInfo = await openTender.getWinningBid(i);
           const winnerName = winnerInfo.winnerName;
-          const winnerAdress = winnerInfo.winnerAdress;
+          const winnerAddress = winnerInfo.winnerAddress;
           const winningBidAmt = winnerInfo.winningBidAmt;
           resltArray[i] = {
             rtdrId: { id },
             rtdrTitle: { title },
             rtdrWname: { winnerName },
-            rtdrWnadress: { winnerAdress },
+            rtdrWnaddress: { winnerAddress },
             rtdrWnamt: { winningBidAmt },
           };
         }
       }
-      // Updates available tenders list
+      // Updates available tenders list and finished tenders list
       setOpenTdrs(tdrsArray);
       setResltTdrs(resltArray);
     } else {
@@ -132,6 +139,7 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  // Calls the bid function of the smart contract with required parameters
   const placeOpenBid = async () => {
     try {
       const transact = await openTender.bid(tdrID, bidderName, {
@@ -146,7 +154,7 @@ export const TransactionProvider = ({ children }) => {
   };
 
   const getPrevOpenBids = async () => {
-    // Gets the bid details of the respective tender
+    // Gets the bid details of the selected tender
     try {
       if (tdrID) {
         const count = await openTender.getBidderCountofTdr(tdrID);
@@ -166,7 +174,7 @@ export const TransactionProvider = ({ children }) => {
       console.log(error);
       throw new Error("No Ethereum object");
     }
-
+    // Sets the array to OpenBids
     setOpenBids(bidsArray);
     console.log(bidsArray);
   };
@@ -191,10 +199,11 @@ export const TransactionProvider = ({ children }) => {
     try {
       console.log("h");
       if (!ethereum) return alert("Please install Metamask");
-
+      // Gets the accounts from the ethereum object
       const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
+      // accounts[0] is the current account
       setCurrentAccount(accounts[0]);
       console.log(currentAccount);
     } catch (error) {
@@ -203,17 +212,20 @@ export const TransactionProvider = ({ children }) => {
       throw new Error("No Ethereum object");
     }
   };
-
+  // Checks if wallet is connected during the initial rendering
   useEffect(() => {
     checkIfWalletIsConnected();
-    //listenAccount();
   }, []);
 
   return (
+    // Provider component is used to wrap the part of your component tree where you want to make the data available
+    // It accepts a value prop, which is the data you want to pass down.
+    // These values are used by the component that needs it
     <TransactionContext.Provider
       value={{
         connectWallet,
         currentAccount,
+        setCurrentAccount,
         handleChangeTitle,
         handleChangeIndustry,
         handleChangeDesc,

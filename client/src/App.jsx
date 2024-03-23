@@ -9,7 +9,7 @@ import Result from "./components/Result";
 const App = () => {
   return (
     <div className="flex flex-col h-screen bg-white bg-opacity-5 ">
-      <div>
+      <div className="sticky">
         <NavBar />
       </div>
 

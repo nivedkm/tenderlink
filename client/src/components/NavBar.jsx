@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { TransactionContext } from "../context/TransactionContext";
-import Sidebar from "./Icons";
+import Icons from "./Icons";
 
 function NavBar() {
   const { connectWallet, currentAccount } = useContext(TransactionContext);
@@ -10,9 +10,12 @@ function NavBar() {
       <div className="flex-1">
         <h4 className="font-bold text-3xl">TenderLink</h4>
       </div>
-      <div className="w-max pb-2">
-        <Sidebar />
-      </div>
+      {currentAccount && (
+        <div className="w-max pb-2">
+          <Icons />
+        </div>
+      )}
+
       <div>
         {!currentAccount && (
           <button
@@ -24,10 +27,7 @@ function NavBar() {
           </button>
         )}
         {currentAccount && (
-          <button
-            className="btn bg-base-100  font-bold mr-1"
-            type="button"
-          >
+          <button className="btn bg-base-100  font-bold mr-1" type="button">
             CONNECTED
           </button>
         )}
