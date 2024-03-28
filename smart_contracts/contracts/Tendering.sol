@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 // payable - Function accepts ether along with the transaction
 // view - Function only reads data from the blockchain and does not modify it
-// require - Execution of the transaction stops when the conditon is fails
+// require - Execution of the transaction stops when the conditon fails
 // mapping - like dictionary in python using key value pairs specified as types
 // modifier - Used to restrict access to certain functions
 contract openTender {
@@ -15,8 +15,8 @@ contract openTender {
         uint startTime;
         uint endTime;
         uint accBal;
-        uint maxBid;
-        address highestBidder;
+        uint minBid;
+        address lowestBidder;
         uint bidCount;
         mapping(uint => address) bidders;
     }
@@ -58,6 +58,7 @@ contract openTender {
         t.startTime = _bidO;
         t.endTime = _bidC;
         t.mngr = msg.sender;
+        t.minBid = type(uint).max;
         // Index increments everytime a new tender is created, which can uniquely identify a tender
         tdrCount++;
     }
@@ -84,18 +85,18 @@ contract openTender {
         }
 
         require(
-            amt > tdrs[_tdrID].maxBid,
-            "Bid is lower than the current bid."
+            amt < tdrs[_tdrID].minBid || tdrs[_tdrID].minBid == 0,
+            "Bid is higher than the current bid."
         );
         bidder storage b = bidders[msg.sender];
         b.bidderName = _name;
         b.bidded = true;
         b.bidAmt[_tdrID] = amt;
         tdrs[_tdrID].accBal += amt;
-        // Updates accordingly if the current bid is the maximum bid
-        if (bidders[msg.sender].bidAmt[_tdrID] > tdrs[_tdrID].maxBid) {
-            tdrs[_tdrID].maxBid = amt;
-            tdrs[_tdrID].highestBidder = msg.sender;
+        // Updates accordingly if the current bid is the minimum bid
+        if (bidders[msg.sender].bidAmt[_tdrID] < tdrs[_tdrID].minBid) {
+            tdrs[_tdrID].minBid = amt;
+            tdrs[_tdrID].lowestBidder = msg.sender;
         }
         // Bidding period extended by 10 mins of it is less than 10 mins
         // away from ending. Done to ensure last minute bids are not
@@ -124,13 +125,15 @@ contract openTender {
 
     function payTdrMngr(uint _tdrID) public payable onlyOfficial {
         require(tdrs[_tdrID].endTime < block.timestamp, "Bid has not ended.");
-        require(tdrs[_tdrID].maxBid > 0, "No bids placed.");
-        // Recieves the highest bid amount
-        bool sent = payable(manager).send(tdrs[_tdrID].maxBid);
+        require(tdrs[_tdrID].minBid > 0, "No bids placed.");
+        // Recieves the lowest bid amount
+        //bool sent = payable(manager).send(tdrs[_tdrID].maxBid);
+        bool sent = payable(msg.sender).send(
+            bidders[msg.sender].bidAmt[_tdrID]
+        );
         require(sent, "Payment failed");
-        tdrs[_tdrID].maxBid = 0;
+        tdrs[_tdrID].minBid = 0;
     }
-    
 
     // Different details read from the blockchain
 
@@ -138,16 +141,13 @@ contract openTender {
         return tdrCount;
     }
 
-    function highestBidOfTdr(
-        uint _tdrID
-    ) public view returns (uint highestBid) {
-        return tdrs[_tdrID].maxBid;
+    function lowestBidOfTdr(uint _tdrID) public view returns (uint lowestBid) {
+        return tdrs[_tdrID].minBid;
     }
-
-    function highestBidderOfTdr(
+    function lowestBidderOfTdr(
         uint _tdrID
-    ) public view returns (address highestBidderAdr) {
-        return tdrs[_tdrID].highestBidder;
+    ) public view returns (address lowestBidderAdr) {
+        return tdrs[_tdrID].lowestBidder;
     }
 
     struct TenderInfo {
@@ -157,7 +157,7 @@ contract openTender {
         string desc;
         uint startTime;
         uint endTime;
-        uint maxBid;
+        uint minBid;
         uint currentTime;
     }
 
@@ -170,16 +170,28 @@ contract openTender {
                 tdrs[_tdrID].desc,
                 tdrs[_tdrID].startTime,
                 tdrs[_tdrID].endTime,
-                tdrs[_tdrID].maxBid,
+                tdrs[_tdrID].minBid,
                 block.timestamp
             );
     }
     // returns the winning bid details when the bid has ended
     function getWinningBid(
         uint _tdrID
-    ) public view returns (address winnerAddress, string memory winnerName, uint winningBidAmt) {
+    )
+        public
+        view
+        returns (
+            address winnerAddress,
+            string memory winnerName,
+            uint winningBidAmt
+        )
+    {
         require(tdrs[_tdrID].endTime < block.timestamp, "Bid has not ended.");
-        return (tdrs[_tdrID].highestBidder, bidders[tdrs[_tdrID].highestBidder].bidderName , tdrs[_tdrID].maxBid);
+        return (
+            tdrs[_tdrID].lowestBidder,
+            bidders[tdrs[_tdrID].lowestBidder].bidderName,
+            tdrs[_tdrID].minBid
+        );
     }
 
     function getBiddersOfTdr(

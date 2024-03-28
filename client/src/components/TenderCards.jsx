@@ -15,10 +15,9 @@ const TenderCards = (props) => {
         <div className="bg-accent  h-[415px] w-[315px] rounded-md p-4 my-7 mx-4 shadow-md hover:bg-opacity-90 flex flex-col text-center ">
           <div className="text-3xl">{props.title}</div>
           <div className="flex flex-col h-full justify-center text-ellipsis overflow-hidden">
-            <p>{props.industry}</p>
+            <p className="text-lg pb-4">{props.industry}</p>
             <p>{props.desc}</p>
-            <p>{feTime}</p>
-            <p>{props.id}</p>
+            <p className="pt-4">Ends on :  {feTime}</p>
           </div>
           <div>
             <Link to={`/bid/${props.id}`} state={{ tdr: { props } }}>

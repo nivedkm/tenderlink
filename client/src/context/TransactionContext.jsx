@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers"; // To interact with ethereum blockchain
 import { contractABI, contractAdress } from "../utils/constants";
 // Provides a way to pass data through the component tree without having to pass props down manually at every level
-export const TransactionContext = React.createContext(); 
+export const TransactionContext = React.createContext();
 
 // Checking if metamask is installed
 if (typeof window.ethereum == "undefined") {
@@ -27,7 +27,7 @@ const getOpenContract = () => {
 export const TransactionProvider = ({ children }) => {
   // Sets the contract instance to openTender
   const openTender = getOpenContract();
-
+  const [Loading, setLoading] = useState(false);
   const [currentAccount, setCurrentAccount] = useState("");
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -69,6 +69,7 @@ export const TransactionProvider = ({ children }) => {
 
   const createTender = async () => {
     try {
+      setLoading(true);
       console.log(title, industry, desc, startTime, endTime);
       const sTime = Math.floor(new Date(startTime).getTime() / 1000);
       const eTime = Math.floor(new Date(endTime).getTime() / 1000);
@@ -83,8 +84,10 @@ export const TransactionProvider = ({ children }) => {
         eTime
       );
       console.log("openTender Result: ", transact);
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
 
       throw new Error("No Ethereum object");
     }
@@ -101,7 +104,7 @@ export const TransactionProvider = ({ children }) => {
         const industry = tdrInfo.industry;
         const startTime = tdrInfo.startTime;
         const endTime = tdrInfo.endTime;
-        const maxBid = tdrInfo.maxBid.toString();
+        const minBid = tdrInfo.minBid.toString();
         const currentTime = tdrInfo.currentTime;
         const ended = currentTime > endTime;
         // Array created to store the details of each tender
@@ -112,7 +115,7 @@ export const TransactionProvider = ({ children }) => {
           tdrIndustry: { industry },
           tdrStartTime: { startTime },
           tdrEndTime: { endTime },
-          tdrMaxBid: { maxBid },
+          tdrMinBid: { minBid },
           isEnded: { ended },
         };
         // Sets the finished tenders to another array
@@ -142,12 +145,15 @@ export const TransactionProvider = ({ children }) => {
   // Calls the bid function of the smart contract with required parameters
   const placeOpenBid = async () => {
     try {
+      setLoading(true);
       const transact = await openTender.bid(tdrID, bidderName, {
         value: ethers.utils.parseEther(bidAmt.toString()),
       });
       console.log(transact);
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
 
       throw new Error("No Ethereum object");
     }
@@ -164,6 +170,7 @@ export const TransactionProvider = ({ children }) => {
           console.log("bid", bid);
           const bidder = bid.biddera.toString();
           const bidderAmt = bid.bidAmt.toString();
+
           bidsArray[i] = {
             bidderAdr: { bidder },
             amt: { bidderAmt },
@@ -242,6 +249,7 @@ export const TransactionProvider = ({ children }) => {
         tdrID,
         getPrevOpenBids,
         OpenBids,
+        Loading,
       }}
     >
       {children}

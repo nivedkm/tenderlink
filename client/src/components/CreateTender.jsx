@@ -9,6 +9,7 @@ function CreateTender() {
     handleChangeEndTime,
     handleChangeIndustry,
     createTender,
+    Loading
   } = useContext(TransactionContext);
 
   return (
@@ -17,7 +18,7 @@ function CreateTender() {
         <div className="w-full text-center pt-10 pb-10">
           <h1 className="font-bold text-4xl">Create Tender</h1>
         </div>
-        <div className="container  shadow-md mx-auto p-10">
+        <div className="container shadow-md mx-auto p-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <label
@@ -95,8 +96,8 @@ function CreateTender() {
             </div>
           </div>
           <div className="pt-8">
-            <button className="btn hover:bg-success" onClick={createTender}>
-              Create Tender
+            <button className="btn hover:bg-success" onClick={createTender} disabled={Loading}>
+              {Loading ? "Creating..." : "Create Tender"}
             </button>
           </div>
         </div>

@@ -6,31 +6,31 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import TaskIcon from "@mui/icons-material/Task";
 const Icons = () => {
   return (
-    <div className="h-12 w-[550px]  flex  justify-evenly p-2 bg-opacity-80 rounded-md ">
-      <div className=" w-9 text-center rounded-sm flex flex-col hover:bg-primary-focus ">
+    <div className="h-12 w-[550px]  flex  justify-evenly p-1 pt-2 bg-opacity-80 rounded-md ">
+      <div className=" w-16 h-[54px] text-center rounded-sm flex flex-col hover:bg-gray-300 transition-all duration-300  ">
         <Link to="/">
-          <HomeIcon className="hover:opacity-60" />
-        </Link>
+          <HomeIcon className="" />
         <p className="text-sm pt-1 ">Home</p>
-      </div>
-      <div className=" w-9 text-center rounded-sm flex flex-col items-center hover:bg-primary-focus ">
-        <Link to="/tenders">
-          <GavelIcon className="hover:opacity-60" />
         </Link>
+      </div>
+      <div className=" w-16 h-[54px] text-center rounded-sm flex flex-col items-center hover:bg-gray-300 transition-all duration-300">
+        <Link to="/tenders">
+          <GavelIcon className="" />
         <p className="text-sm pt-1 ">Tenders</p>
+        </Link>
       </div>
 
-      <div className=" w-9 text-center rounded-sm flex flex-col items-center hover:bg-primary-focus ">
+      <div className=" w-16 h-[54px] text-center rounded-sm flex flex-col items-center hover:bg-gray-300 transition-all duration-300">
         <Link to="/result">
-          <TaskIcon className="hover:opacity-60" />
-        </Link>
+          <TaskIcon className="" />
         <p className="text-sm pt-1 ">Results</p>
-      </div>
-      <div className=" w-9 text-center rounded-sm flex flex-col items-center hover:bg-primary-focus ">
-        <Link to="/admin">
-          <SupervisorAccountIcon className="hover:opacity-60" />
         </Link>
+      </div>
+      <div className=" w-16 h-[54px] text-center rounded-sm flex flex-col items-center hover:bg-gray-300 transition-all duration-300">
+        <Link to="/admin">
+          <SupervisorAccountIcon className="" />
         <p className="text-sm pt-1 ">Admin</p>
+        </Link>
       </div>
     </div>
   );
